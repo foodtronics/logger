@@ -1,6 +1,6 @@
 const { create } = require('../build');
 
-const logger = create({ level: "debug" });
+const logger = create({ level: "debug", module: "complexos" });
 
 const tracer = logger.checkout();
 
