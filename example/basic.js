@@ -1,8 +1,10 @@
+const { v4: uuid } = require('uuid');
+
 const { create } = require('../build');
 
 const logger = create({ level: "debug", module: "complexos" });
 
-const tracer = logger.checkout();
+let tracer = logger.checkout();
 
 tracer.info("ABC");
 tracer.info("ABC");
@@ -10,19 +12,14 @@ tracer.info("ABC");
 tracer.info("ABC");
 tracer.info("ABC");
 
-const trace = logger.checkout();
+tracer = logger.checkout();
 
-trace.info({ name: "abc" }, "hello world");
-trace.info({ name: "abc" }, "hello world");
-trace.info({ name: "abc" }, "hello world");
-trace.info({ name: "abc" }, "hello world");
+tracer.info({ name: "abc" }, "hello world");
+tracer.info({ name: "abc" }, "hello world");
+tracer.info({ name: "abc" }, "hello world");
+tracer.info({ name: "abc" }, "hello world");
 
-const traceId = "two-three";
+tracer = logger.checkout(uuid());
 
-const r = logger.restore({ traceId });
+tracer.warn({ field: "one", abc: "bca" });
 
-r.info({ message: "name" }, "restored");
-r.info({ message: "name" }, "restored");
-r.info({ message: "name" }, "restored");
-r.info({ message: "name" }, "restored");
-r.info({ message: "name" }, "restored");

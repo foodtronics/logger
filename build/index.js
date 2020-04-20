@@ -10,8 +10,12 @@ const formatters = {
 };
 exports.create = ({ level, module, pretty = false }) => {
     const logger = pino_1.default({ nestedKey: "payload", messageKey: "message", prettyPrint: pretty, level, formatters }, pino_1.default.destination(1)).child({ module });
+    const checkout = (traceId) => {
+        if (traceId)
+            return logger.child({ traceId });
+        return logger.child({ traceId: uuid_1.v4() });
+    };
     return {
-        checkout: () => logger.child({ traceId: uuid_1.v4() }),
-        restore: ({ traceId }) => logger.child({ traceId }),
+        checkout,
     };
 };
