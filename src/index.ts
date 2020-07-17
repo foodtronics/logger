@@ -15,9 +15,12 @@ export const create = ({ level, module, pretty = false }: Config) => {
     const logger = pino({ nestedKey: "payload", messageKey: "message", prettyPrint: pretty, level, formatters }, pino.destination(1)).child({ module });
 
     const checkout = (traceId?: string) => {
-        if (traceId) return logger.child({ traceId });
+        const _traceId = traceId || uuid();
+        const tracer = logger.child({ traceId: _traceId });
 
-        return logger.child({ traceId: uuid() });
+        tracer.traceId = _traceId;
+
+        return tracer;
     }
 
     return {

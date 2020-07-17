@@ -23,3 +23,4 @@ tracer = logger.checkout(uuid());
 
 tracer.warn({ field: "one", abc: "bca" });
 
+console.log(tracer.traceId);

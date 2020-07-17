@@ -11,9 +11,10 @@ const formatters = {
 exports.create = ({ level, module, pretty = false }) => {
     const logger = pino_1.default({ nestedKey: "payload", messageKey: "message", prettyPrint: pretty, level, formatters }, pino_1.default.destination(1)).child({ module });
     const checkout = (traceId) => {
-        if (traceId)
-            return logger.child({ traceId });
-        return logger.child({ traceId: uuid_1.v4() });
+        const _traceId = traceId || uuid_1.v4();
+        const tracer = logger.child({ traceId: _traceId });
+        tracer.traceId = _traceId;
+        return tracer;
     };
     return {
         checkout,
