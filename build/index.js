@@ -5,6 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const pino_1 = __importDefault(require("pino"));
 const os_1 = __importDefault(require("os"));
+const ulid_1 = require("ulid");
 const formatters = {
     level: (label) => ({ level: label }),
 };
@@ -20,7 +21,8 @@ exports.createLogger = ({ level, module }) => {
         },
         formatters,
     }, pino_1.default.destination(1));
-    const log = (level) => (meta, arg0, ...args) => {
+    const log = (level) => (meta = { traceId: ulid_1.ulid() }, arg0, ...args) => {
+        meta.traceId = (meta.traceId || ulid_1.ulid()).toLowerCase();
         const _logger = logger.child(meta);
         if (typeof (arg0) === 'object') {
             const [msg, ...rest] = args;

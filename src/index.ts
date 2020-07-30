@@ -28,7 +28,9 @@ export const createLogger = ({ level, module }: Config) => {
         formatters,
     }, pino.destination(1));
 
-    const log = (level: pino.Level) => (meta: IMeta, arg0: string | object, ...args: any[]) => {
+    const log = (level: pino.Level) => (meta: IMeta = { traceId: ulid() }, arg0: string | object, ...args: any[]) => {
+        meta.traceId = (meta.traceId || ulid()).toLowerCase();
+
         const _logger = logger.child(meta);
 
         if (typeof(arg0) === 'object') {
