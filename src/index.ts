@@ -1,29 +1,57 @@
 import pino from "pino";
-import { v4 as uuid } from "uuid";
+import os from "os";
+import { ulid } from "ulid";
 
 type Config = {
     level: string;
     module: string;
-    pretty: boolean;
+}
+
+interface IMeta {
+    traceId?: string;
 }
 
 const formatters = {
     level: (label: string) => ({ level: label }),
 };
 
-export const create = ({ level, module, pretty = false }: Config) => {
-    const logger = pino({ nestedKey: "payload", messageKey: "message", prettyPrint: pretty, level, formatters }, pino.destination(1)).child({ module });
+export const createLogger = ({ level, module }: Config) => {
+    const logger = pino({
+        nestedKey: "payload",
+        messageKey: "message",
+        level,
+        base: {
+            module,
+            pid: process.pid,
+            hostname: os.hostname(),
+        },
+        formatters,
+    }, pino.destination(1));
 
-    const checkout = (traceId?: string) => {
-        const _traceId = traceId || uuid();
-        const tracer = logger.child({ traceId: _traceId });
+    const log = (level: pino.Level) => (meta: IMeta, arg0: string | object, ...args: any[]) => {
+        const _logger = logger.child(meta);
 
-        tracer.traceId = _traceId;
+        if (typeof(arg0) === 'object') {
+            const [msg, ...rest] = args;
+            return void _logger[level](arg0, msg, ...rest);
+        }
 
-        return tracer;
+        _logger[level](arg0, ...args);
     }
 
+    const debug = log('debug');
+    const trace = log('trace');
+    const info = log('info');
+    const warn = log('warn');
+    const error = log('error');
+    const fatal = log('fatal');
+
     return {
-        checkout,
+        trace,
+        debug,
+        info,
+        warn,
+        error,
+        fatal,
     };
 }
