@@ -1,7 +1,7 @@
 import pino from "pino";
 import os from "os";
 import { ulid } from "ulid";
-import { mergeRight, curryN } from "ramda";
+import { mergeRight, curry } from "ramda";
 
 interface ILogger {
     trace(meta: IMeta, message: string, data?: object): void;
@@ -10,6 +10,17 @@ interface ILogger {
     warn(meta: IMeta, message: string, data?: object): void;
     error(meta: IMeta, message: string, data?: object): void;
     fatal(meta: IMeta, message: string, data?: object): void;
+
+    tracer(meta: IMeta): ITracer;
+}
+
+interface ITracer {
+    trace(message: string, data?: object): void;
+    debug(message: string, data?: object): void;
+    info(message: string, data?: object): void;
+    warn(message: string, data?: object): void;
+    error(message: string, data?: object): void;
+    fatal(message: string, data?: object): void;
 }
 
 interface ILoggerParams {
@@ -41,17 +52,28 @@ export const createLogger = ({ level = "debug", module }: ILoggerParams): ILogge
             logger[level](mergeRight(data, meta), message);
         };
 
-    const trace = curryN(1, _log('trace'));
+    const trace = curry(_log('trace'));
 
-    const debug = curryN(1, _log('debug'));
+    const debug = curry(_log('debug'));
 
-    const info = curryN(1, _log('info'));
+    const info = curry(_log('info'));
 
-    const warn = curryN(1, _log('warn'));
+    const warn = curry(_log('warn'));
 
-    const error = curryN(1, _log('error'));
+    const error = curry(_log('error'));
 
-    const fatal = curryN(1, _log('fatal'));
+    const fatal = curry(_log('fatal'));
+
+    const tracer = (meta: IMeta): ITracer => {
+        return {
+            trace: trace(meta),
+            debug: debug(meta),
+            info: info(meta),
+            warn: warn(meta),
+            error: error(meta),
+            fatal: fatal(meta),
+        }
+    }
 
     return {
         trace,
@@ -60,6 +82,8 @@ export const createLogger = ({ level = "debug", module }: ILoggerParams): ILogge
         warn,
         error,
         fatal,
+
+        tracer,
     };
 }
 

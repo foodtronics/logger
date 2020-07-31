@@ -24,12 +24,22 @@ exports.createLogger = ({ level = "debug", module }) => {
     const _log = (level) => (meta, message, data = {}) => {
         logger[level](ramda_1.mergeRight(data, meta), message);
     };
-    const trace = ramda_1.curryN(1, _log('trace'));
-    const debug = ramda_1.curryN(1, _log('debug'));
-    const info = ramda_1.curryN(1, _log('info'));
-    const warn = ramda_1.curryN(1, _log('warn'));
-    const error = ramda_1.curryN(1, _log('error'));
-    const fatal = ramda_1.curryN(1, _log('fatal'));
+    const trace = ramda_1.curry(_log('trace'));
+    const debug = ramda_1.curry(_log('debug'));
+    const info = ramda_1.curry(_log('info'));
+    const warn = ramda_1.curry(_log('warn'));
+    const error = ramda_1.curry(_log('error'));
+    const fatal = ramda_1.curry(_log('fatal'));
+    const tracer = (meta) => {
+        return {
+            trace: trace(meta),
+            debug: debug(meta),
+            info: info(meta),
+            warn: warn(meta),
+            error: error(meta),
+            fatal: fatal(meta),
+        };
+    };
     return {
         trace,
         debug,
@@ -37,6 +47,7 @@ exports.createLogger = ({ level = "debug", module }) => {
         warn,
         error,
         fatal,
+        tracer,
     };
 };
 exports.createMeta = (traceId = ulid_1.ulid()) => {
