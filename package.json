@@ -9,5 +9,12 @@
     "pino": "^6.2.0",
     "typescript": "^3.8.3",
     "ulid": "^2.3.0"
+  },
+  "peerDependencies": {
+    "ramda": "^0.27.1"
+  },
+  "devDependencies": {
+    "@types/ramda": "^0.27.14",
+    "ramda": "^0.27.1"
   }
 }

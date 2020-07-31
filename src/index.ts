@@ -1,9 +1,19 @@
 import pino from "pino";
 import os from "os";
 import { ulid } from "ulid";
+import { mergeRight, curryN } from "ramda";
 
-type Config = {
-    level: string;
+interface ILogger {
+    trace(meta: IMeta, message: string, data?: object): void;
+    debug(meta: IMeta, message: string, data?: object): void;
+    info(meta: IMeta, message: string, data?: object): void;
+    warn(meta: IMeta, message: string, data?: object): void;
+    error(meta: IMeta, message: string, data?: object): void;
+    fatal(meta: IMeta, message: string, data?: object): void;
+}
+
+interface ILoggerParams {
+    level: pino.Level;
     module: string;
 }
 
@@ -11,11 +21,7 @@ interface IMeta {
     traceId?: string;
 }
 
-const formatters = {
-    level: (label: string) => ({ level: label }),
-};
-
-export const createLogger = ({ level, module }: Config) => {
+export const createLogger = ({ level = "debug", module }: ILoggerParams): ILogger => {
     const logger = pino({
         nestedKey: "payload",
         messageKey: "message",
@@ -25,28 +31,27 @@ export const createLogger = ({ level, module }: Config) => {
             pid: process.pid,
             hostname: os.hostname(),
         },
-        formatters,
-    }, pino.destination(1));
+        formatters: {
+            level: (label: string) => ({ level: label }),
+        },
+    });
 
-    const log = (level: pino.Level) => (meta: IMeta = { traceId: ulid() }, arg0: string | object, ...args: any[]) => {
-        meta.traceId = (meta.traceId || ulid()).toLowerCase();
+    const _log = (level: pino.Level) =>
+        (meta: IMeta, message: string, data: object = {}) => {
+            logger[level](mergeRight(data, meta), message);
+        };
 
-        const _logger = logger.child(meta);
+    const trace = curryN(1, _log('trace'));
 
-        if (typeof(arg0) === 'object') {
-            const [msg, ...rest] = args;
-            return void _logger[level](arg0, msg, ...rest);
-        }
+    const debug = curryN(1, _log('debug'));
 
-        _logger[level](arg0, ...args);
-    }
+    const info = curryN(1, _log('info'));
 
-    const debug = log('debug');
-    const trace = log('trace');
-    const info = log('info');
-    const warn = log('warn');
-    const error = log('error');
-    const fatal = log('fatal');
+    const warn = curryN(1, _log('warn'));
+
+    const error = curryN(1, _log('error'));
+
+    const fatal = curryN(1, _log('fatal'));
 
     return {
         trace,
@@ -55,5 +60,13 @@ export const createLogger = ({ level, module }: Config) => {
         warn,
         error,
         fatal,
+    };
+}
+
+export const createMeta = (traceId: string = ulid()): IMeta => {
+    const _traceId = traceId.toLowerCase();
+
+    return {
+        traceId: _traceId,
     };
 }
