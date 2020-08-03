@@ -1,7 +1,7 @@
 import pino from "pino";
 import os from "os";
 import { ulid } from "ulid";
-import { mergeRight, curry } from "ramda";
+import { defaultTo, curry, mergeRight } from "ramda";
 
 interface ILogger {
     trace(meta: IMeta, message: string, data?: object): void;
@@ -32,11 +32,13 @@ interface IMeta {
     traceId?: string;
 }
 
-export const createLogger = ({ level = "debug", module }: ILoggerParams): ILogger => {
+export const DEFAULT_LEVEL = "debug";
+
+export const createLogger = ({ level = DEFAULT_LEVEL, module }: ILoggerParams): ILogger => {
     const logger = pino({
         nestedKey: "payload",
         messageKey: "message",
-        level,
+        level: defaultTo(DEFAULT_LEVEL, level),
         base: {
             module,
             pid: process.pid,
