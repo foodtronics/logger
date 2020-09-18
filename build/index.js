@@ -7,11 +7,12 @@ const pino_1 = __importDefault(require("pino"));
 const os_1 = __importDefault(require("os"));
 const ulid_1 = require("ulid");
 const ramda_1 = require("ramda");
-exports.createLogger = ({ level = "debug", module }) => {
+exports.DEFAULT_LEVEL = "debug";
+exports.createLogger = ({ level = exports.DEFAULT_LEVEL, module }) => {
     const logger = pino_1.default({
         nestedKey: "payload",
         messageKey: "message",
-        level,
+        level: ramda_1.defaultTo(exports.DEFAULT_LEVEL, level),
         base: {
             module,
             pid: process.pid,

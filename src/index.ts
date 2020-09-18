@@ -3,7 +3,7 @@ import os from "os";
 import { ulid } from "ulid";
 import { defaultTo, curry, mergeRight } from "ramda";
 
-interface ILogger {
+export interface ILogger {
     trace(meta: IMeta, message: string, data?: object): void;
     debug(meta: IMeta, message: string, data?: object): void;
     info(meta: IMeta, message: string, data?: object): void;
@@ -14,7 +14,7 @@ interface ILogger {
     tracer(meta: IMeta): ITracer;
 }
 
-interface ITracer {
+export interface ITracer {
     trace(message: string, data?: object): void;
     debug(message: string, data?: object): void;
     info(message: string, data?: object): void;
@@ -23,12 +23,12 @@ interface ITracer {
     fatal(message: string, data?: object): void;
 }
 
-interface ILoggerParams {
+export interface ILoggerParams {
     level: pino.Level;
     module: string;
 }
 
-interface IMeta {
+export interface IMeta {
     traceId?: string;
 }
 

@@ -23,6 +23,7 @@ interface ILoggerParams {
 interface IMeta {
     traceId?: string;
 }
+export declare const DEFAULT_LEVEL = "debug";
 export declare const createLogger: ({ level, module }: ILoggerParams) => ILogger;
 export declare const createMeta: (traceId?: string) => IMeta;
 export {};
