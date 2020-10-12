@@ -1,4 +1,5 @@
 import pino from "pino";
+export declare type Level = pino.Level;
 export interface ILogger {
     trace(meta: IMeta, message: string, data?: object): void;
     debug(meta: IMeta, message: string, data?: object): void;
